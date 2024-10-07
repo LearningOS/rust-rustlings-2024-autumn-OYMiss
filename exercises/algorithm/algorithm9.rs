@@ -1,18 +1,19 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
 // I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
+use std::process::id;
 
 pub struct Heap<T>
 where
     T: Default,
 {
     count: usize,
-    items: Vec<T>,
+    pub items: Vec<T>,
     comparator: fn(&T, &T) -> bool,
 }
 
@@ -37,7 +38,23 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        let mut idx = self.items.len() - 1;
+        loop {
+            let pidx = self.parent_idx(idx);
+            if pidx == 0 {
+                break;
+            }
+            let c = &self.items[idx];
+            let p = &self.items[pidx];
+            if (self.comparator)(c, p) {
+                self.items.swap(idx, pidx);
+                idx = pidx;
+            } else {
+                break;
+            }
+        }
+        self.count += 1;
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +74,18 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let lidx = self.left_child_idx(idx);
+        let ridx = self.right_child_idx(idx);
+        let l = &self.items[lidx];
+        if ridx > self.count {
+            return lidx;
+        }
+        let r = &self.items[ridx];
+        if (self.comparator)(l, r) {
+            lidx
+        } else {
+            ridx
+        }
     }
 }
 
@@ -85,7 +112,29 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        // remove
+        if self.is_empty() {
+            return None;
+        }
+        let mut idx = 1 as usize;
+        self.items.swap(idx, self.count);
+        // delete last
+        self.count -= 1;
+        let res = self.items.pop();
+
+        while idx > 0 && self.children_present(idx) {
+            let nidx = self.smallest_child_idx(idx);
+
+            let c = &self.items[nidx];
+            let p = &self.items[idx];
+            if (self.comparator)(c, p) {
+                self.items.swap(idx, nidx);
+                idx = nidx;
+            } else {
+                break;
+            }
+        }
+        res
     }
 }
 

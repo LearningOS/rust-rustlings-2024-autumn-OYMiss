@@ -1,6 +1,6 @@
 /*
-	graph
-	This problem requires you to implement a basic graph functio
+    graph
+    This problem requires you to implement a basic graph functio
 */
 // I AM NOT DONE
 
@@ -16,6 +16,7 @@ impl fmt::Display for NodeNotInGraph {
 pub struct UndirectedGraph {
     adjacency_table: HashMap<String, Vec<(String, i32)>>,
 }
+
 impl Graph for UndirectedGraph {
     fn new() -> UndirectedGraph {
         UndirectedGraph {
@@ -28,21 +29,45 @@ impl Graph for UndirectedGraph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>> {
         &self.adjacency_table
     }
+
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (u, v, w) = edge;
+        if !self.contains(u) {
+            self.add_node(u);
+        }
+        if !self.contains(v) {
+            self.add_node(v);
+        }
+        let edges = self.adjacency_table_mutable().get_mut(u).unwrap();
+        edges.push((v.to_string(), w));
+        let edges = self.adjacency_table_mutable().get_mut(v).unwrap();
+        edges.push((u.to_string(), w));
     }
 }
 pub trait Graph {
     fn new() -> Self;
     fn adjacency_table_mutable(&mut self) -> &mut HashMap<String, Vec<(String, i32)>>;
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
+
     fn add_node(&mut self, node: &str) -> bool {
-        //TODO
-		true
+        if self.contains(node) {
+            false
+        } else {
+            self.adjacency_table_mutable()
+                .insert(node.to_string(), vec![]);
+            true
+        }
     }
+
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (u, v, w) = edge;
+        if !self.contains(u) {
+            self.add_node(u);
+        }
+        let edges = self.adjacency_table_mutable().get_mut(u).unwrap();
+        edges.push((v.to_string(), w));
     }
+
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
     }
